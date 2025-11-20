@@ -1,15 +1,13 @@
 import cv2
 import os
 import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, utils
-from albumentations import (HorizontalFlip, ShiftScaleRotate, Resize, Compose, ToTensorV2)
-# from omegaconf import Omegaconf
-
-from pathlib import Path
 # Ignore warnings
 import warnings
 warnings.filterwarnings("ignore")
+
+from albumentations import (HorizontalFlip, ShiftScaleRotate, Resize, Compose, ToTensorV2)
+from pathlib import Path
+from torch.utils.data import Dataset, DataLoader
 
 from .preprocessing import Preprocessor
 
@@ -23,7 +21,7 @@ def get_transforms(phase, height, width):
                 ShiftScaleRotate(
                     shift_limit=0,  # no resizing
                     scale_limit=0.1,
-                    rotate_limit=10, # rotate
+                    rotate_limit=10,
                     p=0.5,
                     border_mode=cv2.BORDER_CONSTANT
                 ),
@@ -76,23 +74,13 @@ class SemanticSegmentationDataset(Dataset):
                                     std=self.std)
         image = preprocessor.preprocess_image()
         mask = preprocessor.preprocess_mask()
-        
-        # image = cv2.imread(img_path)  # Loads as BGR, numpy array
-        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # Convert to RGB
-        # image = image.astype(float)
-        # tensor_image = transformer(image)
-
-        # label_path = img_path.replace('Images', 'Labels')
-        # if not os.path.exists(label_path):
-        #     raise FileNotFoundError(f"Label file not found for image: {img_path}")
-        # bgr_label_array = cv2.imread(label_path)
-        # rgb_label_array = cv2.cvtColor(bgr_label_array, cv2.COLOR_BGR2RGB)
-        # mask = rgb_to_mask(rgb_label_array)
         # Removed: mask = mask.astype(float) to keep mask as integer type
 
         augmented = self.transforms(image=image, mask=mask)
         image = augmented['image']
-        mask = augmented['mask'].long()  # Explicitly convert mask to LongTensor for CrossEntropyLoss
+        
+        # Explicitly convert mask to LongTensor for CrossEntropyLoss
+        mask = augmented['mask'].long()
 
         return image, mask
 

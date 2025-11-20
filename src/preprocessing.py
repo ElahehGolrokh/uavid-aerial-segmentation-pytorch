@@ -55,7 +55,6 @@ class Preprocessor():
         mean = np.array(self.mean, dtype=np.float32)
         std = np.array(self.std, dtype=np.float32)
         image = (image - mean) / std
-        # image = (image - mean * 255) / (std * 255)
         return image
 
     def _rgb_to_gray(cls, rgb_label_array):
