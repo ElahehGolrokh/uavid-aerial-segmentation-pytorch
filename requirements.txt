@@ -1,0 +1,2 @@
+albumentations==2.0.8
+torch==2.3.0
