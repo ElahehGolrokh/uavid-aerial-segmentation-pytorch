@@ -1,5 +1,6 @@
 # Project folders
 data/
+check.py
 .python-version
 
 # Byte-compiled / optimized / DLL files

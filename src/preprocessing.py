@@ -15,9 +15,15 @@ class Preprocessor():
                  (np.uint8(128), np.uint8(128), np.uint8(0)): 6,  # Low vegetation
                  (np.uint8(192), np.uint8(0), np.uint8(192)): 7}  # Static car
 
-    def __init__(self, image_path: Path, normalize_flag: bool = True):
+    def __init__(self,
+                 image_path: Path,
+                 normalize_flag: bool = False,
+                 mean: tuple = None,
+                 std: tuple = None):
         self.image_path = image_path
         self.normalize_flag = normalize_flag
+        self.mean = mean
+        self.std = std
 
     def preprocess_image(self):
         image = self._read_image(self.image_path)
@@ -40,17 +46,17 @@ class Preprocessor():
         image = image.astype(float)
         return image
 
-    @staticmethod
-    def _normalize(image, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+    def _normalize(self, image):
         """
-        image: numpy array RGB image (H, W, 3), dtype uint8 or float
-        Returns: normalized float32 image.
+        Standard normalization is applied using the formula:
+        img = (img - mean * max_pixel_value) / (std * max_pixel_value).
         """
-        image = image.astype("float32") / 255.0
-        mean = np.array(mean, dtype=np.float32)
-        std = np.array(std, dtype=np.float32)
-
-        return (image - mean) / std
+        image = image/255.
+        mean = np.array(self.mean, dtype=np.float32)
+        std = np.array(self.std, dtype=np.float32)
+        image = (image - mean) / std
+        # image = (image - mean * 255) / (std * 255)
+        return image
 
     def _rgb_to_gray(cls, rgb_label_array):
         """
